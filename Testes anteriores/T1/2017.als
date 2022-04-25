@@ -1,26 +1,40 @@
-# Resolução Teste 2017
+// enum Ocean {Artic, Atlantic, Indian, Pacific, Southern}
 
-## Parte 1
+/*abstract sig Ocean{} 
+one sig Artic, Atlantic, Indian, Pacific, Southern extends Ocean{}*/
 
-**1.** C
+/*one sig Ocean{} 
+sig Artic, Atlantic, Indian, Pacific, Southern extends Ocean{}*/
 
-**2.** D
+/*sig Ocean{}{#Ocean = 5}
+one sig Artic, Atlantic, Indian, Pacific, Southern extends Ocean{}*/
 
-**3.** C
+------------------------------------------------------------------------------------------
 
-**4.** C
+/*sig Country {
+	neighbors: set Country - this
+}*/
 
-**5.** B, C
+/*sig Country {
+	neighbors: set Country
+} {
+	this not in neighbors
+}*/
 
-**6.** C
+/*sig Country {
+	neighbors: set Country
+} 
 
-**7.** A, B
+fact {no neighbors & iden}*/
 
-## Parte 2
+/*sig Country {
+	neighbors: disj set Country
+}*/
 
-**1.**
+-----------------------------------------------------------------------------------------
 
-```alloy
+open util/ordering[Placement]
+
 sig Place {}
 
 sig Network {
@@ -42,11 +56,7 @@ sig Network {
 
     all p1, p2 : places | p2 in p1.*connections 
 }
-```
 
-**2.**
-
-```alloy
 sig Object {}
 
 sig Placement {
@@ -59,11 +69,7 @@ sig Placement {
 	-- The places where objects are positioned must belong to the network.
 	positions[objects] in network.places
 }
-```
 
-**3.**
-
-```alloy
 -- Moves an object o to an adjacent place p in a placement t,
 -- resulting in a new placement t'.
 pred moveObject[t : Placement, o : Object, p : Place, tf : Placement] {
@@ -78,14 +84,35 @@ pred moveObject[t : Placement, o : Object, p : Place, tf : Placement] {
 	-- post-conditions (one per field of t’)
 	tf.network = t.network
 	tf.objects = t.objects
-	tf.positions = t.positions ++ o -> p
+	tf.positions = t.positions + o -> p
 }
-```
 
-**4.**
-
-```alloy
 fact {
 	all t : Placement | some o : Object, p : Place | moveObject[t, o, p, t.next]
 }
-```
+
+one sig x, y, z, w extends Place {}
+
+one sig n extends Network {} {
+	places = x + y + z + w
+	connections = x->y + y->x + y->z + z->y + y->w + w->y
+}
+
+one sig a, b extends Object {}
+
+one sig initial extends Placement {} {
+	network = n
+	objects = a + b
+	positions = a->x + b->y
+}
+
+-- Swap objects in a minimal number of steps (6 moves, 7 Placements)
+run success {
+	first = initial and last.positions = a->y + b->x
+} for 7 but exactly 1 Network, 2 Object, 4 Place
+
+-- Trying to swap objects in fewer steps should fail
+run failure {
+	first = initial and last.positions = a->y + b->x
+} for 6 but exactly 1 Network, 2 Object, 4 Place
+
