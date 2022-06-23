@@ -19,11 +19,18 @@ method bubbleSort(a: array<real>)
   ensures multiset(a[..]) == multiset(old(a[..]))
 {
     var n := a.Length; 
-    while n  > 1 
+    while n > 1
+      invariant 0 <= n <= a.Length
+      invariant isSorted(a, n, a.Length) && leq(a, 0, n, n, a.Length)
+      invariant multiset(old(a[..])) == multiset(a[..])
     {
       var newn := 0;
       var i := 1;
       while i < n 
+        invariant 0 <= newn < i <= n
+        invariant isSorted(a, n, a.Length) && leq(a, 0, n, n, a.Length)
+        invariant isSorted(a, newn, i) && leq(a, 0, newn, newn, i)
+        invariant multiset(old(a[..])) == multiset(a[..])
       {
           if (a[i-1] > a[i]) { 
               a[i-1], a[i] := a[i], a[i-1]; 

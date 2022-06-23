@@ -1,29 +1,20 @@
-/* 
-* Formal verification of O(n) and O(log n) algorithms to calculate the natural
-* power of a real number (x^n), illustrating the usage of lemmas.
-* FEUP, M.EIC, MFS, 2021/22.
-*/
-
-// Initial specification/definition of x^n, recursive, functional style, 
-// with time and space complexity O(n).
 function power(x: real, n: nat) : real
 {
     if n == 0 then 1.0 else x * power(x, n-1)
 }
 
 // Iterative version, imperative, with time complexity O(n) and space complexity O(1).
-method powerIter(b: real, n: nat) returns (p : real)
-    ensures p == power(b, n)
+method powerInt(x: real, n: int) returns (p : real)
+    requires n < 0 ==> x != 0.0
+    ensures if n >= 0 then p == power(x, n) else p == 1.0 / power(x, -n)
 {
-    // start with p = b^0
-    p := 1.0;
-    var i := 0;
-    // iterate until reaching p = b^n
-    while i < n
-        invariant p == power(b, i) && 0 <= i <= n
+    if n < 0
     {
-        p := p * b;
-        i := i + 1;
+        p := powerOpt(x, -n);
+        p := 1.0 / p;
+    }
+    else {
+        p := powerOpt(x, n);
     }
 }
 
@@ -72,12 +63,11 @@ method powerOpt(b: real, n: nat) returns (p : real)
 
 // A simple test case to make sure the specification is adequate.
 method testPower() {
-    var p1 := powerIter(2.0, 5);
-    var p2 := powerOpt(2.0, 5);
+    var p1 := powerInt(2.0, 5);
+    var p2 := powerInt(2.0, -5);
 
     print "P1: ", p1, "\n";
     print "P2: ", p2, "\n";
 
     assert p1 == 32.0;
-    assert p2 == 32.0;
 }

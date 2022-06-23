@@ -9,12 +9,11 @@
 // 'n' by a (positive) divisor 'd'.
 method div(n: nat, d: nat) returns (q: nat, r: nat)
   requires d > 0
-  ensures 0 <= r <= d && q * d + r == n
+  ensures q * d + r == n && r < d
 {
   q := 0;
   r := n;  
   while r >= d
-    decreases r
     invariant q * d + r == n
   {
     q := q + 1;
@@ -25,6 +24,7 @@ method div(n: nat, d: nat) returns (q: nat, r: nat)
 // A simple test case
 method Main()
 {
-    var q, r := div(15, 6);
-    print "q = ", q, " r=", r, "\n";
+  var q, r := div(15, 6);
+  print "q = ", q, " r = ", r, "\n";
+  assert q == 2 && r == 3;
 }

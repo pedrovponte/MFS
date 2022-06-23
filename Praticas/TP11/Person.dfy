@@ -12,7 +12,7 @@ class Person
 
     constructor (name: string, sex: Sex, mother: Person?, father: Person?)
         requires (father != null ==> father.sex == Masculine)
-        requires (mother != mull ==> mother.sex == Feminine)
+        requires (mother != null ==> mother.sex == Feminine)
         ensures Valid()
     {
         this.name := name;
